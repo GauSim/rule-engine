@@ -1,0 +1,30 @@
+{
+  "name": "rule-engine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "pretest": "npm run build",
+    "test": "NODE_ENV='test' _mocha './dist/test/index.js' -c --inline-diffs --reporter 'spec' --ui 'bdd'",
+    "test:watch": "npm run test -- --watch",
+    "start": "node ./dist",
+    "build": "tsc -p .",
+    "clean": "find ./dist/ -type f -name '*.js' -delete && find ./dist/ -type f -name '*.js.map' -delete",
+    "watch-serve": "nodemon -L --exec 'npm run start' ./dist",
+    "prewatch": "npm run clean",
+    "watch": " npm run build -- --pretty -w",
+    "typings": "typings install"
+  },
+  "devDependencies": {
+    "mocha": "^2.4.5",
+    "typescript": "^1.8.9",
+    "typings": "^0.7.9"
+  },
+  "dependencies": {
+    "nodemon": "^1.9.1",
+    "should": "^8.3.0",
+    "underscore": "^1.8.3"
+  },
+  "author": "simon.gausmann@gausmann-media.de",
+  "license": "ISC"
+}
