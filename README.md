@@ -1,75 +1,121 @@
 # rule-engine
 
+##### idea: 
+I want to create a functional engine that provides a easy api to create ruleset and makes it possible to mix and match rules together.
+
+```
+const runRuleEngine = $when.always();
+```
+you can read it like this: 
+
+> $when **state** has/is **condition** then runRuleEngine(state) returns true
+
+
+> $if **state** has/is **condition** then runRuleEngine(state) returns true
+
+```
+runRuleEngine(state).then(result => { ... }) // => true
+```
+
+
+
+## Quickstart
+
+
+#### import rule-helpers $if and $when
+define a interface of the type you want to apply rules to and create rule-helpers **$if** and **$when** by passing your interface to the RuleEngine constructor. They both supply the same functions, so you can use both **$if** <==> **$when**.
 ```
 import RuleEngine from './lib/RuleEngine';
 
-// playground 
-interface User {
+interface IUser {
     name: string;
     age: number;
 }
 
-const { $if, $when } = new RuleEngine<User>();
+const { $if, $when } = new RuleEngine<IUser>();
 
-function evalCustom(state: User) {
-    return true;
+```
+#### create your own rules 
+create rules by pure functions that receive **state** of your **interface** (here its a user). 
+Rules should always return **boolean** or a **Promise of boolean**. 
+```
+// sync => boolean
+function isAdult(user: IUser) {
+    return (user.age >= 18);
 }
 
-function evalRemote(state: User) {
-    return new Promise<boolean>((ok, fail) => {
+// async => Promise<boolean> 
+function isOnline(user: IUser) {
+    return new Promise<boolean>((resolve, reject) => {
+
         setTimeout(() => {
-            ok(true);
+            resolve(true); 
+            // allways resolve with true or false, rejectHandlers are for errors!
         }, 99);
+
     });
 }
+```
+#### define your ruleset
+all helpers return a RuleEngine-function that returns a Promise of boolean if you run it with state.
 
-// read like this: 
-// [$when] state has/is condition then runRules(state) returns true;
-// [$if] state has/is condition then runRules(state) returns true;
+##### call your rules like this:
+```
+// on app start load rule 
+const runRuleEngine = $if.sync(isAdult);
 
-const runRules = $if.all([
+const currentUser:IUser = { name: 'julia', age: 28 };
 
-    // basics like [always], [never]
-    $when.always(),
+// while app running
+runRuleEngine(currentUser).then(result => { ... }) // => true
+```
+##### works with Promises, for **async** rules:
+```
+const runRuleEngine = $if.async(isOnline), 
+runRuleEngine(currentUser).then(result => { ... }) // => true
 
-    // neg
-    // $when is a alias for $if ($if === $when)
-    $when.not(
-        $if.equals({ name: 'simon', age: 30 })
-    ),
-
-    // logic combine conditions with [some] or [all]
-    // alias are for [and] & [or]
-    $when.some([
-        $if.always(),
-        $if.never()
-    ]),
-
-    $if.equals({ name: 'julia', age: 28 }), // check for deepEqual on state object
-
-    $if.has({ age: 28 }), // check if prop on state has value, alias is [propsAre] 
-
-    $if.not(
-        $if.has({ name: 'peter', age: 28 }) // you can check for multible values on state also
-    ),
-
-    $if.sync(evalCustom), // put your own rule in
-
-    $if.async(evalRemote), // works with Promises, rules can be run against remote systems
-
-    $if.waitForOrSkip(100, evalRemote), // has a timer to skip remote stuff 
-
+// has a timer to skip async stuff if it takes to long 
+const runRuleEngine = $if.waitForOrSkip(100, isOnline), 
+```
+##### always & never
+```
+const runRuleEngine = $if.always(); // or $if.never()
+```    
+##### logic combine conditions with **some** or **all**. (alias: **and** & **or**)
+```
+const runRuleEngine = $if.all([ 
+    $if.sync(isAdult),
+    $if.async(isOnline)
 ]);
 
-console.time('$timer');
-console.log('start');
+const runRuleEngine = $if.some([ 
+    $if.sync(isAdult),
+    $if.async(isOnline)
+]);
+```
+##### deepEqual on state object
+```
+const runRuleEngine = $if.equals({ name: 'simon', age: 30 })
+```
+##### negation
+```
+const runRuleEngine = $when.not(
+    $if.equals({ name: 'simon', age: 30 })
+)
+```
 
-runRules({ name: 'julia', age: 28 })
+##### check if prop on state has value
+```
+const runRuleEngine = $when.some([
+        $if.has({ age: 28 }),
+        $if.has({ name: 'peter', age: 35 }) // check for multible values on state
+    ]),
+```
 
-    .then(result => {
-        console.log(result);
-        console.log('end');
-        console.timeEnd('$timer');
-    })
-    .catch(e => console.error(e)); 
+## Want to help?
+```
+npm install
+npm run watch // typescript build watch
+npm run watch:serve // run/watch playground (index.ts)
+npm run test:watch // run tests do TDD be cool 
 ```
