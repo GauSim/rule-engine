@@ -107,8 +107,8 @@ const runRuleEngine = $when.not(
 ##### check if prop on state has value
 ```javascript
 const runRuleEngine = $when.some([
-        $if.has({ age: 28 }),
-        $if.has({ name: 'peter', age: 35 }) // check for multible values on state
+        $if.has({ age: 28 }), // single prop and value
+        $if.has({ name: 'peter', age: 35 }) // check for multible 
     ]),
 ```
 
