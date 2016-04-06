@@ -1,31 +1,36 @@
 import RuleEngine from './lib/RuleEngine';
 
-// playground 
-
-interface User {
+// define a interface you want to apply rules to
+interface IUser {
     name: string;
     age: number;
 }
 
-const { $if, $when } = new RuleEngine<User>();
 
-function evalCustom(state: User) {
-    return true;
+const { $if, $when } = new RuleEngine<IUser>();
+
+
+function isAdult(user: IUser) {
+    return (user.age >= 18);
 }
 
-function evalRemote(state: User) {
-    return new Promise<boolean>((ok, fail) => {
+function isOnline(user: IUser) {
+    return new Promise<boolean>((resolve, reject) => {
+
+        // call async remote api to eval
         setTimeout(() => {
-            ok(true);
+            resolve(true); // allways resolve with true or false, reject is for errors
         }, 99);
+
     });
 }
 
+// Define your RuleSet
 // read like this: 
 // [$when] state has/is condition then runRules(state) returns true;
 // [$if] state has/is condition then runRules(state) returns true;
 
-const runRules = $if.all([
+const runRuleEngine = $if.all([
 
     // basics like [always], [never]
     $when.always(),
@@ -51,22 +56,22 @@ const runRules = $if.all([
         $if.has({ name: 'peter', age: 28 }) // you can check for multible values on state also
     ),
 
-    $if.sync(evalCustom), // put your own rule in
+    $if.sync(isAdult), // put your own rule in
 
-    $if.async(evalRemote), // works with Promises, rules can be run against remote systems
+    $if.async(isOnline), // works with Promises, rules can be run against remote systems
 
-    $if.waitForOrSkip(100, evalRemote), // has a timer to skip remote stuff 
+    $if.waitForOrSkip(100, isOnline), // has a timer to skip remote stuff 
 
 ]);
 
-console.time('$timer');
-console.log('start');
 
-runRules({ name: 'julia', age: 28 })
+const currentUser:IUser = { name: 'julia', age: 28 };
 
+// run the RuleEngine
+runRuleEngine(currentUser)
     .then(result => {
-        console.log(result);
-        console.log('end');
-        console.timeEnd('$timer');
+
+        console.log(result); // => true
+
     })
     .catch(e => console.error(e)); 
