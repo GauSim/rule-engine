@@ -1,7 +1,7 @@
 # rule-engine
 
 ##### idea: 
-I want to create a functional engine that provides a easy api to create ruleset and makes it possible to mix and match rules together.
+I want to create a functional engine that provides an easy API to create rule set and makes it possible to mix and match rules together.
 
 ```javascript
 const runRuleEngine = $when.always();
@@ -23,7 +23,7 @@ runRuleEngine(state).then(result => { ... }) // => true
 
 
 #### import rule-helpers $if and $when
-define a interface of the type you want to apply rules to and create rule-helpers **$if** and **$when** by passing your interface to the RuleEngine constructor. They both supply the same functions, so you can use both **$if** <==> **$when**.
+define an interface of the type you want to apply rules to and create rule-helpers **$if** and **$when** by passing your interface to the RuleEngine constructor. They both supply the same functions, so you can use both **$if** <==> **$when**.
 ```javascript
 import RuleEngine from './lib/RuleEngine';
 
@@ -37,7 +37,7 @@ const { $if, $when } = new RuleEngine<IUser>();
 ```
 #### create your own rules 
 create rules by pure functions that receive **state** of your **interface** (here its a user). 
-Rules should always return **boolean** or a **Promise of boolean**. 
+Rules should always return **Boolean** or a **Promise of Boolean**. 
 ```javascript
 // sync => boolean
 function isAdult(user: IUser) {
@@ -50,14 +50,14 @@ function isOnline(user: IUser) {
 
         setTimeout(() => {
             resolve(true); 
-            // allways resolve with true or false, rejectHandlers are for errors!
+            // always resolve with true or false, reject is for errors!
         }, 99);
 
     });
 }
 ```
-#### define your ruleset
-all helpers return a RuleEngine-function that returns a Promise of boolean if you run it with state.
+#### define your rule set
+all helpers return a RuleEngine-function that returns a Promise of Boolean if you run it with state.
 
 ##### call your rules like this:
 ```javascript
@@ -80,7 +80,24 @@ const runRuleEngine = $if.waitForOrSkip(100, isOnline),
 ##### always & never
 ```javascript
 const runRuleEngine = $if.always(); // or $if.never()
-```    
+```
+##### negation of rules
+```javascript
+const runRuleEngine = $when.not(
+     $if.sync(isAdult),
+)
+```
+##### deep equality on the (full) state object
+```javascript
+const runRuleEngine = $if.equals({ name: 'simon', age: 30 })
+```
+##### check if property on state has a value
+```javascript
+const runRuleEngine = $when.some([
+        $if.has({ age: 28 }), // single prop and value
+        $if.has({ name: 'peter', age: 35 }) // check for multiple  
+    ]),
+```
 ##### logic combine conditions with **some** or **all**. (alias: **and** & **or**)
 ```javascript
 const runRuleEngine = $if.all([ 
@@ -88,28 +105,25 @@ const runRuleEngine = $if.all([
     $if.async(isOnline)
 ]);
 
+// nest as deep as you like.
 const runRuleEngine = $if.some([ 
+    
     $if.sync(isAdult),
-    $if.async(isOnline)
+    $if.sync(isInstructor)
+    
+    
+    $if.all([ 
+    
+        $if.some([
+            $if.async(junior),
+            $if.not($if.sync(isAdult))
+        ]),
+        
+        $if.waitForOrSkip(500, isValidOnRemote)
+        
+    ]);
 ]);
-```
-##### deepEqual on state object
-```javascript
-const runRuleEngine = $if.equals({ name: 'simon', age: 30 })
-```
-##### negation
-```javascript
-const runRuleEngine = $when.not(
-    $if.equals({ name: 'simon', age: 30 })
-)
-```
 
-##### check if prop on state has value
-```javascript
-const runRuleEngine = $when.some([
-        $if.has({ age: 28 }), // single prop and value
-        $if.has({ name: 'peter', age: 35 }) // check for multible 
-    ]),
 ```
 
 ## Want to help?
