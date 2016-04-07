@@ -1,7 +1,7 @@
 # rule-engine
 
 ##### idea: 
-I want to create a functional engine that provides an easy API to create rule set and makes it possible to mix and match rules together.
+I want to create a functional engine that provides an easy API to create rule sets and makes it possible to mix and match rules together.
 
 ```javascript
 const runRuleEngine = $when.always();
