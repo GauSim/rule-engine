@@ -45,18 +45,6 @@ function isAdult(user: IUser) {
     return (user.age >= 18); // => Boolean
 }
 
-// async 
-function isOnline(user: IUser) {
-    return new Promise<boolean>((resolve, reject) => {
-
-        setTimeout(() => {
-            resolve(true); // => Boolean
-            // always resolve with Boolean, reject is for errors not for values!
-        }, 99);
-
-    });
-}
-
 // on app start register your rules 
 const runRuleEngine = $if.sync(isAdult);
 
@@ -70,6 +58,18 @@ runRuleEngine(currentUser).then(result => { ... }) // => true
 ```
 ##### works with Promises, for **async** rules:
 ```javascript
+// async 
+function isOnline(user: IUser) {
+    return new Promise<boolean>((resolve, reject) => {
+
+        setTimeout(() => {
+            resolve(true); // => Boolean
+            // always resolve with Boolean, reject is for errors not for values!
+        }, 99);
+
+    });
+}
+
 const runRuleEngine = $if.async(isOnline), 
 runRuleEngine(currentUser).then(result => { ... }) // => true
 
