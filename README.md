@@ -40,12 +40,12 @@ create rules by pure functions that receive **state** of your **interface** (her
 Rules should always return **Boolean** or a **Promise of Boolean**. 
 All rule-helpers ($if, $when) return a RuleEngine-function that returns a Promise of Boolean if you run it with state.
 ```javascript
-// sync => boolean
+
 function isAdult(user: IUser) {
     return (user.age >= 18); // => Boolean
 }
 
-// async => Promise<boolean> 
+// async 
 function isOnline(user: IUser) {
     return new Promise<boolean>((resolve, reject) => {
 
