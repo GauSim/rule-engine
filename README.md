@@ -38,10 +38,11 @@ const { $if, $when } = new RuleEngine<IUser>();
 #### create your own rules 
 create rules by pure functions that receive **state** of your **interface** (here its a user). 
 Rules should always return **Boolean** or a **Promise of Boolean**. 
+All rule-helpers ($if, $when) return a RuleEngine-function that returns a Promise of Boolean if you run it with state.
 ```javascript
 // sync => boolean
 function isAdult(user: IUser) {
-    return (user.age >= 18);
+    return (user.age >= 18); // => Boolean
 }
 
 // async => Promise<boolean> 
@@ -49,25 +50,23 @@ function isOnline(user: IUser) {
     return new Promise<boolean>((resolve, reject) => {
 
         setTimeout(() => {
-            resolve(true); 
-            // always resolve with true or false, reject is for errors!
+            resolve(true); // => Boolean
+            // always resolve with Boolean, reject is for errors not for values!
         }, 99);
 
     });
 }
-```
-#### define your rule set
-all helpers return a RuleEngine-function that returns a Promise of Boolean if you run it with state.
 
-##### call your rules like this:
-```javascript
-// on app start load rule 
+// on app start register your rules 
 const runRuleEngine = $if.sync(isAdult);
 
 const currentUser:IUser = { name: 'julia', age: 28 };
 
-// while app running
+// call with state while app running
 runRuleEngine(currentUser).then(result => { ... }) // => true
+
+...
+
 ```
 ##### works with Promises, for **async** rules:
 ```javascript
@@ -83,8 +82,8 @@ const runRuleEngine = $if.always(); // or $if.never()
 ```
 ##### negation of rules
 ```javascript
-const runRuleEngine = $when.not(
-     $if.sync(isAdult),
+const runRuleEngine = $if.not(
+     $when.sync(isAdult),
 )
 ```
 ##### deep equality on the (full) state object
@@ -93,10 +92,10 @@ const runRuleEngine = $if.equals({ name: 'simon', age: 30 })
 ```
 ##### check if property on state has a value
 ```javascript
-const runRuleEngine = $when.some([
-        $if.has({ age: 28 }), // single prop and value
-        $if.has({ name: 'peter', age: 35 }) // check for multiple  
-    ]),
+const runRuleEngine = $if.has({ age: 28 }); // single prop and value
+        
+const runRuleEngine = $if.has({ name: 'peter', age: 35 }) // check for multiple  
+
 ```
 ##### logic combine conditions with **some** or **all**. (alias: **and** & **or**)
 ```javascript
