@@ -73,8 +73,8 @@ function isOnline(user: IUser) {
 const runRuleEngine = $if.async(isOnline), 
 runRuleEngine(currentUser).then(result => { ... }) // => true
 
-// has a timer to skip async stuff if it takes to long 
-const runRuleEngine = $if.waitForOrSkip(100, isOnline), 
+// has a timeout to skip async stuff if it takes to long 
+const runRuleEngine = $if.timeout(100, isOnline), 
 ```
 ##### always & never
 ```javascript
