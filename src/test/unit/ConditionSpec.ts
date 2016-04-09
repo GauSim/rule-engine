@@ -287,15 +287,13 @@ describe('Rules', () => {
                 .catch(done);
         });
 
-        it('should throw if state has not the prop passed', (done) => {
+        it('should return FALSE if state has not the prop passed', (done) => {
             const $run = has({ randomProp: 999 });
 
             $run({ count: 1 })
-                .then(_ => done(new Error('should throw')))
-                .catch(error => {
-                    should(error).be.instanceof(Error);
-                    done()
-                });
+                .then(result => should(result).be.exactly(false))
+                .then(_ => done())
+                .catch(done);
 
         });
 
