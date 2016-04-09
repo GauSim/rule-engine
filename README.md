@@ -68,9 +68,10 @@ function isOnline(user: IUser) {
 
         setTimeout(() => {
             resolve(true); // => Boolean
-            // always resolve with Boolean, reject is for errors not for values!
         }, 99);
 
+        // always resolve with Boolean, reject is for errors not for values!
+    
     });
 }
 
