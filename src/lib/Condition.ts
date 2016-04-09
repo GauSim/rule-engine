@@ -1,6 +1,11 @@
 import * as _ from 'underscore';
 import * as deepEqual from 'deep-equal';
 
+// attempt to pass state down
+export type IConditionResult<T extends {}> = {
+    $state: T;
+    result: boolean;
+}
 
 export type IState<T extends {}> = T & {
 };
