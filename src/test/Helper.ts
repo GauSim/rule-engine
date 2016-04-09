@@ -3,6 +3,11 @@ import * as should from 'should';
 import { ICondition, IState, IConditionConfig } from '../lib/RuleEngine';
 
 export class Helper {
+
+    static truthyPromiseFunc = (state) => Promise.resolve({ some: 'value' });
+    static falsyPromiseFunc = (state) => Promise.resolve(null);
+    static errorPromiseFunc = (state) => Promise.reject(new Error('bla'));
+
     testConditionBase = (state: IState<any>) => {
         describe('Condition', () => {
 

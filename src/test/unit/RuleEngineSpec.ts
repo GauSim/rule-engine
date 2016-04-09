@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import * as should from 'should';
+import * as _ from 'underscore';
 import { Helper } from '../Helper';
 
 import RuleEngine, { Condition, IState, IConditionConfig } from '../../lib/RuleEngine';
@@ -315,17 +316,12 @@ describe('Rules', () => {
     describe('async', () => {
         const { async } = $if;
 
-        const truthyPromiseFunc = (state) => Promise.resolve({ some: 'value' });
-        const falsyPromiseFunc = (state) => Promise.resolve(null);
-        const errorPromiseFunc = (state) => Promise.reject(new Error('bla'));
-
-
-        new Helper(async, truthyPromiseFunc)
+        new Helper(async, $if.always())
             .testConditionBase(null)
             .testRuleBase(null);
 
         it('should return TRUE if promise result is truthy', (done) => {
-            const $run = async(truthyPromiseFunc);
+            const $run = async(Helper.truthyPromiseFunc);
             $run({ count: 1 })
                 .then(result => should(result).be.exactly(true))
                 .then(_ => done())
@@ -333,7 +329,7 @@ describe('Rules', () => {
         });
 
         it('should return FALSE if promise result is falsy', (done) => {
-            const $run = async(falsyPromiseFunc);
+            const $run = async(Helper.falsyPromiseFunc);
             $run({ count: 1 })
                 .then(result => should(result).be.exactly(false))
                 .then(_ => done())
@@ -341,7 +337,7 @@ describe('Rules', () => {
         });
 
         it('should return FALSE if promise is rejected', (done) => {
-            const $run = async(errorPromiseFunc);
+            const $run = async(Helper.errorPromiseFunc);
             $run({ count: 1 })
                 .then(result => should(result).be.exactly(false))
                 .then(_ => done())
@@ -350,4 +346,51 @@ describe('Rules', () => {
 
     });
 
+    describe('timeout', () => {
+
+        const { timeout } = $if;
+
+        new Helper($if.timeout, { ms: 100, $if: $if.always() })
+            .testConditionBase(null)
+            .testRuleBase(null);
+
+        it('should call timeout', (done) => {
+            let was_called = false;
+            const _setTimeout = (func: () => any, t: number) => {
+                was_called = true;
+                func();
+            };
+
+            const _$if = new Condition({ _setTimeout });
+
+
+            const $run = _$if.timeout({ ms: 0, $if: Helper.truthyPromiseFunc });
+            $run({ count: 1 })
+                .then(result => should(result).be.exactly(false))
+                .then(_ => should(was_called).be.exactly(true))
+                .then(_ => done())
+                .catch(done);
+
+        });
+        it('should return TRUE promise is truthy )', (done) => {
+
+            const $run = timeout({ ms: 0, $if: Helper.truthyPromiseFunc });
+            $run({ count: 1 })
+                .then(result => should(result).be.exactly(true))
+                .then(_ => done())
+                .catch(done);
+
+        });
+
+        it('should return FALSE promise is falsy )', (done) => {
+
+            const $run = timeout({ ms: 0, $if: Helper.falsyPromiseFunc });
+            $run({ count: 1 })
+                .then(result => should(result).be.exactly(false))
+                .then(_ => done())
+                .catch(done);
+
+        });
+
+    });
 });

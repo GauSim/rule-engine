@@ -25,91 +25,96 @@ export interface IConditionConfig {
 }
 
 export interface ICondition<T> {
-    (config: IConditionConfig): IRuleAsync<T>;
+    (config?: IConditionConfig): IRuleAsync<T>;
 }
 
 export class Condition<T> {
 
     private _equal: (valueA, valueB) => boolean = null;
+    private _setTimeout: (callback: (...args: any[]) => void, ms: number, ...args: any[]) => number;
     private _unwrapGroup = (rules: IRuleAsync<T>[], state: IState<T>): Promise<boolean[]> => Promise.all(rules.map(rule => rule(state)));
 
-    never = (config?: IConditionConfig): IRuleAsync<T> =>
+    never: ICondition<T> = (): IRuleAsync<T> =>
         (state: IState<T>) =>
             Promise.resolve(false);
 
-    always = (config?: IConditionConfig): IRuleAsync<T> =>
+    always: ICondition<T> = (): IRuleAsync<T> =>
         (state: IState<T>) =>
             Promise.resolve(true);
 
-    equals = (value: IState<T>): IRuleAsync<T> =>
+    equals: ICondition<T> = (value: IState<T>): IRuleAsync<T> =>
         (state: IState<T>) => Promise.resolve(deepEqual(value, state));
 
-    all = (rules: IRuleAsync<T>[]): IRuleAsync<T> =>
+    all: ICondition<T> = (rules: IRuleAsync<T>[]): IRuleAsync<T> =>
         (state: IState<T>) =>
             this._unwrapGroup(rules, state)
                 .then(ruleResults => ruleResults
                     .reduce((last, current) => last && current, true)
                 );
 
-    and = this.all;
-    some = (rules: IRuleAsync<T>[]): IRuleAsync<T> =>
+    and: ICondition<T> = this.all;
+    some: ICondition<T> = (rules: IRuleAsync<T>[]): IRuleAsync<T> =>
         (state: IState<T>) =>
             this._unwrapGroup(rules, state)
                 .then(ruleResults => ruleResults
                     .filter(e => e).length > 0
                 );
 
-    any = this.some;
-    or = this.some;
-    not = (rule: IRuleAsync<T>): IRuleAsync<T> =>
+    any: ICondition<T> = this.some;
+    or: ICondition<T> = this.some;
+    not: ICondition<T> = (rule: IRuleAsync<T>): IRuleAsync<T> =>
         (state: IState<T>) =>
             rule(state)
                 .then(result => !result);
 
-    is = (rule: IRule<T>): IRuleAsync<T> =>
+    is: ICondition<T> = (rule: IRule<T>): IRuleAsync<T> =>
         (state: IState<T>) =>
             Promise.resolve(!!(rule(state)));
 
-    sync = this.is;
-    // TODO: needs test
-    async = (ruleLike: (state: IState<T>) => Promise<any>): IRuleAsync<T> =>
+    sync: ICondition<T> = this.is;
+
+    async: ICondition<T> = (ruleLike: (state: IState<T>) => Promise<any>): IRuleAsync<T> =>
         (state: IState<T>) => ruleLike(state)
-            .then(result => !!result) // cast to boolean!
+            .then(result => !!result)
             .catch(e => false)
 
-    waitFor = this.async;
-    // TODO: needs test
-    timeout = (ms: number, rule: IRuleAsync<T>): IRuleAsync<T> =>
+    waitFor: ICondition<T> = this.async;
+
+    timeout: ICondition<T> = ({ ms, $if, $when }: { ms: number, $if?: IRuleAsync<T>, $when?: IRuleAsync<T> }): IRuleAsync<T> =>
         (state: IState<T>) =>
             new Promise<boolean>((resolve, reject) => {
 
+                const rule = $if || $when || this.never;
+
                 let isResolve = false;
 
-                const done = _.once((result: boolean) => {
+
+
+                const timerId = this._setTimeout(() => {
+                    // console.log('resolving from TIMEOUT');
                     if (!isResolve) {
                         isResolve = true;
-                        resolve(result);
+                        resolve(false);
                     }
-                });
-
-                const timerId = setTimeout(() => {
-                    console.log('resolving from TIMEOUT');
-                    done(false);
                 }, ms);
 
-                this.waitFor(rule)(state)
+
+                this.async(rule)(state)
                     .then(result => {
                         if (!isResolve) {
-                            console.log('resolving from PROMISE');
+                            //  console.log('resolving from PROMISE');
                             clearTimeout(timerId);
-                            done(result);
+                            isResolve = true;
+                            resolve(result);
                         }
                     });
+
             });
 
 
-    waitForOrSkip = this.timeout;
-    has = (query: { [key: string]: Object }): IRuleAsync<T> =>
+    waitForOrSkip: ICondition<T> = this.timeout;
+
+    has: ICondition<T> = (query: { [key: string]: Object }): IRuleAsync<T> =>
         (state: IState<T>) => {
             let result = true;
             Object.keys(query).forEach(key => {
@@ -118,10 +123,11 @@ export class Condition<T> {
             return Promise.resolve(result);
         };
 
-    propsAre = this.has;
+    propsAre: ICondition<T> = this.has;
 
-    constructor() {
-        this._equal = deepEqual;
+    constructor(owerwrites: any = {}) {
+        this._setTimeout = owerwrites._setTimeout || setTimeout;
+        this._equal = owerwrites._equal || deepEqual;
     }
 }
 

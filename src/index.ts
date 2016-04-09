@@ -58,12 +58,12 @@ const runRuleEngine = $if.all([
 
     $if.async(isOnline), // works with Promises, rules can be run against remote systems
 
-    $if.waitForOrSkip(100, isOnline), // has a timer to skip remote stuff 
+    $if.timeout({ ms: 100, rule: isOnline }), // has a timer to skip remote stuff 
 
 ]);
 
 
-const currentUser:IUser = { name: 'julia', age: 28 };
+const currentUser: IUser = { name: 'julia', age: 28 };
 
 // run the RuleEngine
 runRuleEngine(currentUser)

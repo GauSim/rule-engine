@@ -74,7 +74,7 @@ const runRuleEngine = $if.async(isOnline),
 runRuleEngine(currentUser).then(result => { ... }) // => true
 
 // has a timeout to skip async stuff if it takes to long 
-const runRuleEngine = $if.timeout(100, isOnline), 
+const runRuleEngine = $if.timeout({ ms: 100, $if: isOnline }), 
 ```
 ##### always & never
 ```javascript
