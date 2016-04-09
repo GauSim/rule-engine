@@ -44,13 +44,14 @@ Rules should always return **Boolean** or a **Promise of Boolean**.
 All rule-helpers ($if, $when) return a RuleEngine-function that returns a Promise of Boolean if you run it with state.
 ```javascript
 
-function isAdult(user: IUser) {
-    return (user.age >= 18); // => Boolean
+function isAdult({ age }: IUser) {
+    return age >= 18; // => Boolean
 }
 
 // on app start register your rules 
 const runRuleEngine = $if.sync(isAdult);
 
+// users login...
 const currentUser:IUser = { name: 'julia', age: 28 };
 
 // call with state while app running
