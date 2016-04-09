@@ -1,6 +1,6 @@
 
 import * as should from 'should';
-import { ICondition, IState, IConditionConfig } from '../lib/Condition';
+import { ICondition, IState, IConditionConfig } from '../lib/RuleEngine';
 
 export class Helper {
     testConditionBase = (state: IState<any>) => {

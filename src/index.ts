@@ -5,8 +5,6 @@ interface IUser {
     name: string;
     age: number;
 }
-
-
 const { $if, $when } = new RuleEngine<IUser>();
 
 

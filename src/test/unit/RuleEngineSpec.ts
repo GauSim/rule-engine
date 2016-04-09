@@ -2,11 +2,24 @@ import * as assert from 'assert';
 import * as should from 'should';
 import { Helper } from '../Helper';
 
-import { Condition, IState, IConditionConfig } from '../../lib/Condition';
+import RuleEngine, { Condition, IState, IConditionConfig } from '../../lib/RuleEngine';
 
 interface ITestState {
     count: number;
 }
+
+describe('Module', () => {
+    it('should have $if and $when', () => {
+
+        const { $if, $when } = new RuleEngine<{ random: 'state' }>();
+
+        should($if).be.ok();
+        should($if).be.instanceof(Condition);
+
+        should($when).be.ok();
+        should($when).be.instanceof(Condition);
+    });
+});
 
 describe('Rules', () => {
     const $if = new Condition<ITestState>();
@@ -295,6 +308,44 @@ describe('Rules', () => {
                 .then(_ => done())
                 .catch(done);
 
+        });
+
+    });
+
+    describe('async', () => {
+        const { async } = $if;
+
+        const truthyPromiseFunc = (state) => Promise.resolve({ some: 'value' });
+        const falsyPromiseFunc = (state) => Promise.resolve(null);
+        const errorPromiseFunc = (state) => Promise.reject(new Error('bla'));
+
+
+        new Helper(async, truthyPromiseFunc)
+            .testConditionBase(null)
+            .testRuleBase(null);
+
+        it('should return TRUE if promise result is truthy', (done) => {
+            const $run = async(truthyPromiseFunc);
+            $run({ count: 1 })
+                .then(result => should(result).be.exactly(true))
+                .then(_ => done())
+                .catch(done);
+        });
+
+        it('should return FALSE if promise result is falsy', (done) => {
+            const $run = async(falsyPromiseFunc);
+            $run({ count: 1 })
+                .then(result => should(result).be.exactly(false))
+                .then(_ => done())
+                .catch(done);
+        });
+
+        it('should return FALSE if promise is rejected', (done) => {
+            const $run = async(errorPromiseFunc);
+            $run({ count: 1 })
+                .then(result => should(result).be.exactly(false))
+                .then(_ => done())
+                .catch(done);
         });
 
     });
