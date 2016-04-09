@@ -7,6 +7,7 @@
         "pretest": "npm run build",
         "test": "NODE_ENV='test' _mocha './dist/test/index.js' -c --inline-diffs --reporter 'spec' --ui 'bdd'",
         "test:watch": "npm run test -- --watch",
+        "test:coverage": "NODE_ENV='test' istanbul --include-all-sources cover _mocha ./dist/test/index.js",
         "start": "node ./dist",
         "build": "tsc -p .",
         "clean": "find ./dist/ -type f -name '*.js' -delete && find ./dist/ -type f -name '*.js.map' -delete",
@@ -20,7 +21,8 @@
         "typescript": "^1.8.9",
         "typings": "^0.7.9",
         "nodemon": "^1.9.1",
-        "should": "^8.3.0"
+        "should": "^8.3.0",
+        "istanbul": "^0.4.2"
     },
     "dependencies": {
         "deep-equal": "^1.0.1",

@@ -1,0 +1,4 @@
+instrumentation:
+    root: ./dist
+    extensions: ['.js', '.jsx']
+    excludes: ['index.js']
