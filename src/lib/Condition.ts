@@ -112,14 +112,10 @@ export class Condition<T> {
     has = (query: { [key: string]: Object }): IRuleAsync<T> =>
         (state: IState<T>) => {
             let result = true;
-            try {
-                Object.keys(query).forEach(key => {
-                    result = result && (Object.keys(state).indexOf(key) > -1) && this._equal(state[key], query[key]);
-                });
-                return Promise.resolve(result);
-            } catch (ex) {
-                return Promise.reject(ex);
-            }
+            Object.keys(query).forEach(key => {
+                result = result && (Object.keys(state).indexOf(key) > -1) && this._equal(state[key], query[key]);
+            });
+            return Promise.resolve(result);
         };
 
     propsAre = this.has;
