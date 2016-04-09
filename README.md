@@ -1,6 +1,7 @@
 # rule-engine
 
 [![Build Status](https://travis-ci.org/GauSim/rule-engine.svg?branch=master)](https://travis-ci.org/GauSim/rule-engine)
+[![Coverage Status](https://coveralls.io/repos/github/GauSim/rule-engine/badge.svg?branch=master)](https://coveralls.io/github/GauSim/rule-engine?branch=master)
 
 ##### idea: 
 I want to create a functional engine that provides an easy API to create rule sets and makes it possible to mix and match rules together.
