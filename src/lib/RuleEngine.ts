@@ -79,7 +79,7 @@ export class Condition<T> {
 
     waitFor = this.async;
     // TODO: needs test
-    waitForOrSkip = (ms: number, rule: IRuleAsync<T>): IRuleAsync<T> =>
+    timeout = (ms: number, rule: IRuleAsync<T>): IRuleAsync<T> =>
         (state: IState<T>) =>
             new Promise<boolean>((resolve, reject) => {
 
@@ -108,7 +108,7 @@ export class Condition<T> {
             });
 
 
-    timeout = this.waitForOrSkip;
+    waitForOrSkip = this.timeout;
     has = (query: { [key: string]: Object }): IRuleAsync<T> =>
         (state: IState<T>) => {
             let result = true;
