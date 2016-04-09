@@ -4,6 +4,7 @@
     "description": "",
     "main": "dist/index.js",
     "scripts": {
+        "postinstall": "npm run typings",
         "pretest": "npm run build",
         "test": "NODE_ENV='test' _mocha './dist/test/index.js' -c --inline-diffs --reporter 'spec' --ui 'bdd'",
         "test:watch": "npm run test -- --watch",
