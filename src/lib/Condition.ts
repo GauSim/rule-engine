@@ -1,5 +1,6 @@
-import * as assert from 'assert';
 import * as _ from 'underscore';
+import * as deepEqual from 'deep-equal';
+
 
 export type IState<T extends {}> = T & {
 };
@@ -24,16 +25,7 @@ export interface ICondition<T> {
 
 export class Condition<T> {
 
-    private _deepEqual = (valueA, valueB): boolean => {
-        let result = false;
-        try {
-            assert.deepEqual(valueA, valueB);
-            result = true;
-        } catch (ex) {
-            result = false;
-        }
-        return result;
-    }
+    private _equal: (valueA, valueB) => boolean = null;
     private _unwrapGroup = (rules: IRuleAsync<T>[], state: IState<T>): Promise<boolean[]> => Promise.all(rules.map(rule => rule(state)));
 
     never = (config: IConditionConfig = null): IRuleAsync<T> =>
@@ -45,7 +37,7 @@ export class Condition<T> {
             Promise.resolve(true);
 
     equals = (value: IState<T>): IRuleAsync<T> =>
-        (state: IState<T>) => Promise.resolve(this._deepEqual(value, state));
+        (state: IState<T>) => Promise.resolve(deepEqual(value, state));
 
     all = (rules: IRuleAsync<T>[]): IRuleAsync<T> =>
         (state: IState<T>) =>
@@ -117,13 +109,7 @@ export class Condition<T> {
             let result = true;
             try {
                 Object.keys(query).forEach(key => {
-
-                    if (Object.keys(state).indexOf(key) === -1) {
-                        throw new Error(`${key} is not a key on state`);
-                    }
-
-                    result = result && this._deepEqual(state[key], query[key]);
-
+                    result = result && (Object.keys(state).indexOf(key) > -1) && this._equal(state[key], query[key]);
                 });
                 return Promise.resolve(result);
             } catch (ex) {
@@ -134,6 +120,6 @@ export class Condition<T> {
     propsAre = this.has;
 
     constructor() {
-
+        this._equal = deepEqual;
     }
 }
