@@ -1,17 +1,17 @@
 
 
-// attempt to pass state down
-export type test_IConditionResult<T extends {}> = {
+// attempt to pass state down, not jet used
+export type StateOf<T extends {}> = {
     $state: T;
     result: boolean;
 }
 
-export type RuleResult = boolean;
-export type RuleSync<Tstate> = (state?: Tstate) => RuleResult;
-export type RuleLikeSync<Tstate> = (state?: Tstate) => RuleResult;
-export type RuleAsync<Tstate> = (state: Tstate) => Promise<RuleResult>;
-export type RuleLikeAsync<Tstate> = (state: Tstate) => Promise<any>;
-export type Condition<Tstate> = (conf?: IConditionConfig) => RuleAsync<Tstate>;
+export type RuleResult<TState> = boolean;
+export type RuleSync<TState> = (state?: TState) => RuleResult<TState>;
+export type RuleLikeSync<TState> = (state?: TState) => RuleResult<TState>;
+export type RuleAsync<TState> = (state: TState) => Promise<RuleResult<TState>>;
+export type RuleLikeAsync<TState> = (state: TState) => Promise<any>;
+export type Condition<TState> = (conf?: IConditionConfig) => RuleAsync<TState>;
 
 export interface IConditionConfig {
 }
