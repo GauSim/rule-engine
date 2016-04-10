@@ -1,4 +1,4 @@
-import RuleEngine, { Conditions, condition, ruleSync, ruleAsync, IConditionConfig, IConditionResult } from './index';
+import RuleEngine, { ConditionService, Condition, RuleSync, RuleAsync, IConditionConfig, RuleResult } from './index';
 
 // define a interface you want to apply rules to
 interface IUser {

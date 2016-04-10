@@ -1,5 +1,5 @@
-import { RuleEngine, Conditions } from './lib/RuleEngine';
-import { condition, ruleSync, ruleAsync, IConditionConfig, IConditionResult } from './lib/Interfaces';
+import { RuleEngine, ConditionService } from './lib/RuleEngine';
+import { Condition, RuleSync, RuleAsync, RuleResult, IConditionConfig } from './lib/Interfaces';
 
 export default RuleEngine;
-export { Conditions, condition, ruleSync, ruleAsync, IConditionConfig, IConditionResult };
+export { ConditionService, Condition, RuleSync, RuleAsync, RuleResult, IConditionConfig };

@@ -3,7 +3,7 @@ import * as should from 'should';
 import * as _ from 'underscore';
 import { Helper } from '../Helper';
 
-import { RuleEngine, Conditions } from '../../lib/RuleEngine';
+import { RuleEngine, ConditionService } from '../../lib/RuleEngine';
 
 interface ITestState {
     count: number;
@@ -15,15 +15,15 @@ describe('Module', () => {
         const { $if, $when } = new RuleEngine<{ random: 'state' }>();
 
         should($if).be.ok();
-        should($if).be.instanceof(Conditions);
+        should($if).be.instanceof(ConditionService);
 
         should($when).be.ok();
-        should($when).be.instanceof(Conditions);
+        should($when).be.instanceof(ConditionService);
     });
 });
 
 describe('Rules', () => {
-    const $if = new Conditions<ITestState>();
+    const $if = new ConditionService<ITestState>();
 
     describe('always', () => {
 
@@ -361,7 +361,7 @@ describe('Rules', () => {
                 func();
             };
 
-            const _$if = new Conditions({ _setTimeout });
+            const _$if = new ConditionService({ _setTimeout });
 
 
             const $run = _$if.timeout({ ms: 0, $if: Helper.truthyPromiseFunc });

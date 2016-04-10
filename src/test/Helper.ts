@@ -1,6 +1,6 @@
 
 import * as should from 'should';
-import { condition, IConditionConfig } from '../lib/Interfaces';
+import { Condition, IConditionConfig } from '../lib/Interfaces';
 
 export class Helper<T> {
 
@@ -46,7 +46,7 @@ export class Helper<T> {
         return this;
     }
 
-    constructor(private condition: condition<any>, private config: IConditionConfig) {
+    constructor(private condition: Condition<any>, private config: IConditionConfig) {
 
     }
 }
