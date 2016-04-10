@@ -1,12 +1,14 @@
 
 
 // attempt to pass state down, not jet used
-export type StateOf<T extends {}> = {
-    $state: T;
+export type StateOf<TState extends {}> = {
+    $if: IConditionService<TState>
+    $state: TState;
     result: boolean;
 }
 
 export type RuleResult<TState> = boolean;
+//export type RuleResult<TState> = StateOf<TState>;
 export type RuleSync<TState> = (state?: TState) => RuleResult<TState>;
 export type RuleLikeSync<TState> = (state?: TState) => RuleResult<TState>;
 export type RuleAsync<TState> = (state: TState) => Promise<RuleResult<TState>>;
