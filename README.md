@@ -123,7 +123,7 @@ const runRuleEngine = $if.some([
             $if.not($if.sync(isAdult))
         ]),
         
-        $if.waitForOrSkip(500, isValidOnRemote)
+        $if.timeout({ ms: 100, $if: isValidOnRemote })
         
     ]);
 ]);
