@@ -1,6 +1,7 @@
 # rule-engine
 
 [![Build Status](https://travis-ci.org/GauSim/rule-engine.svg?branch=master)](https://travis-ci.org/GauSim/rule-engine)
+[![Coverage Status](https://coveralls.io/repos/github/GauSim/rule-engine/badge.svg?branch=master)](https://coveralls.io/github/GauSim/rule-engine?branch=master)
 
 ##### idea: 
 I want to create a functional engine that provides an easy API to create rule sets and makes it possible to mix and match rules together.
@@ -43,13 +44,14 @@ Rules should always return **Boolean** or a **Promise of Boolean**.
 All rule-helpers ($if, $when) return a RuleEngine-function that returns a Promise of Boolean if you run it with state.
 ```javascript
 
-function isAdult(user: IUser) {
-    return (user.age >= 18); // => Boolean
+function isAdult({ age }: IUser) {
+    return age >= 18; // => Boolean
 }
 
 // on app start register your rules 
 const runRuleEngine = $if.sync(isAdult);
 
+// users login...
 const currentUser:IUser = { name: 'julia', age: 28 };
 
 // call with state while app running
@@ -66,9 +68,10 @@ function isOnline(user: IUser) {
 
         setTimeout(() => {
             resolve(true); // => Boolean
-            // always resolve with Boolean, reject is for errors not for values!
         }, 99);
 
+        // always resolve with Boolean, reject is for errors not for values!
+    
     });
 }
 
