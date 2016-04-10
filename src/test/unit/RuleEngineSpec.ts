@@ -3,7 +3,7 @@ import * as should from 'should';
 import * as _ from 'underscore';
 import { Helper } from '../Helper';
 
-import RuleEngine, { Condition, IState, IConditionConfig } from '../../lib/RuleEngine';
+import { RuleEngine, Conditions } from '../../lib/RuleEngine';
 
 interface ITestState {
     count: number;
@@ -15,15 +15,15 @@ describe('Module', () => {
         const { $if, $when } = new RuleEngine<{ random: 'state' }>();
 
         should($if).be.ok();
-        should($if).be.instanceof(Condition);
+        should($if).be.instanceof(Conditions);
 
         should($when).be.ok();
-        should($when).be.instanceof(Condition);
+        should($when).be.instanceof(Conditions);
     });
 });
 
 describe('Rules', () => {
-    const $if = new Condition<ITestState>();
+    const $if = new Conditions<ITestState>();
 
     describe('always', () => {
 
@@ -36,7 +36,7 @@ describe('Rules', () => {
         it('Rule should always return true', (done) => {
             const config = { count: 0 };
             const state = { count: 999 };
-            always(config)(state)
+            always()(state)
                 .then(result => should(result).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
@@ -56,7 +56,7 @@ describe('Rules', () => {
             const config = { count: 0 };
             const state = { count: 999 };
 
-            never(config)(state)
+            never()(state)
                 .then(result => should(result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
@@ -361,7 +361,7 @@ describe('Rules', () => {
                 func();
             };
 
-            const _$if = new Condition({ _setTimeout });
+            const _$if = new Conditions({ _setTimeout });
 
 
             const $run = _$if.timeout({ ms: 0, $if: Helper.truthyPromiseFunc });

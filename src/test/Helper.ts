@@ -1,14 +1,14 @@
 
 import * as should from 'should';
-import { ICondition, IState, IConditionConfig } from '../lib/RuleEngine';
+import { condition, IConditionConfig } from '../lib/Interfaces';
 
-export class Helper {
+export class Helper<T> {
 
     static truthyPromiseFunc = (state) => Promise.resolve({ some: 'value' });
     static falsyPromiseFunc = (state) => Promise.resolve(null);
     static errorPromiseFunc = (state) => Promise.reject(new Error('bla'));
 
-    testConditionBase = (state: IState<any>) => {
+    testConditionBase = (state: T) => {
         describe('Condition', () => {
 
             it('should be a function', () => should(this.condition).be.of.type('function'));
@@ -19,7 +19,7 @@ export class Helper {
         return this;
     }
 
-    testRuleBase = (state: IState<any>) => {
+    testRuleBase = (state: T) => {
 
         describe('Rule', () => {
 
@@ -46,7 +46,7 @@ export class Helper {
         return this;
     }
 
-    constructor(private condition: ICondition<any>, private config: IConditionConfig) {
+    constructor(private condition: condition<any>, private config: IConditionConfig) {
 
     }
 }

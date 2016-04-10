@@ -1,4 +1,4 @@
-import RuleEngine from './index';
+import RuleEngine, { Conditions, condition, ruleSync, ruleAsync, IConditionConfig, IConditionResult } from './index';
 
 // define a interface you want to apply rules to
 interface IUser {
@@ -8,12 +8,12 @@ interface IUser {
 const { $if, $when } = new RuleEngine<IUser>();
 
 
-function isAdult(user: IUser) {
-    return (user.age >= 18);
+function isAdult({ age }: IUser) {
+    return age >= 18;
 }
 
 function isOnline(user: IUser) {
-    return new Promise<boolean>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
 
         // call async remote api to eval
         setTimeout(() => {
@@ -27,6 +27,8 @@ function isOnline(user: IUser) {
 // read like this: 
 // [$when] state has/is condition then runRules(state) returns true;
 // [$if] state has/is condition then runRules(state) returns true;
+
+
 
 const runRuleEngine = $if.all([
 
@@ -58,7 +60,7 @@ const runRuleEngine = $if.all([
 
     $if.async(isOnline), // works with Promises, rules can be run against remote systems
 
-    $if.timeout({ ms: 100, rule: isOnline }), // has a timer to skip remote stuff 
+    $if.timeout({ ms: 100, $if: isOnline }), // has a timer to skip remote stuff 
 
 ]);
 
@@ -72,4 +74,4 @@ runRuleEngine(currentUser)
         console.log(result); // => true
 
     })
-    .catch(e => console.error(e)); 
+    .catch(e => console.error(e));

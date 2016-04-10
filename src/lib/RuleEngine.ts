@@ -1,129 +1,111 @@
 import * as _ from 'underscore';
 import * as deepEqual from 'deep-equal';
+import { condition, ruleAsync, ruleSync, ruleLikeSync, ruleLikeAsync } from './Interfaces';
 
-// attempt to pass state down
-export type IConditionResult<T extends {}> = {
-    $state: T;
-    result: boolean;
+export interface IConditions<T> {
+    never: condition<T>;
+    always: condition<T>;
+    equals: condition<T>;
+    all: condition<T>;
+    and: condition<T>;
+    some: condition<T>;
+    any: condition<T>;
+    or: condition<T>;
+    not: condition<T>;
+    is: condition<T>;
+    sync: condition<T>;
+    async: condition<T>;
+    waitFor: condition<T>;
+    timeout: condition<T>;
+    waitForOrSkip: condition<T>;
+    has: condition<T>;
+    propsAre: condition<T>;
 }
 
-export type IState<T extends {}> = T & {
-};
-
-export interface IRule<T> {
-    (state?: IState<T>): boolean;
-}
-export interface IRuleAsync<T> {
-    (state: IState<T>): Promise<boolean>;
-}
-
-export interface IRuleAsync<T> {
-    (state: IState<T>): Promise<boolean>;
-}
-
-export interface IConditionConfig {
-}
-
-export interface ICondition<T> {
-    (config?: IConditionConfig): IRuleAsync<T>;
-}
-
-export class Condition<T> {
+export class Conditions<Tstate> implements IConditions<Tstate> {
 
     private _equal: (valueA, valueB) => boolean = null;
     private _setTimeout: (callback: (...args: any[]) => void, ms: number, ...args: any[]) => number;
-    private _unwrapGroup = (rules: IRuleAsync<T>[], state: IState<T>): Promise<boolean[]> => Promise.all(rules.map(rule => rule(state)));
+    private _unwrapGroup = (rules: ruleAsync<Tstate>[], state: Tstate): Promise<boolean[]> => Promise.all(rules.map(rule => rule(state)));
 
-    never: ICondition<T> = (): IRuleAsync<T> =>
-        (state: IState<T>) =>
-            Promise.resolve(false);
+    never = () => (state: Tstate) => Promise.resolve(false);
 
-    always: ICondition<T> = (): IRuleAsync<T> =>
-        (state: IState<T>) =>
-            Promise.resolve(true);
+    always = () => (state: Tstate) => Promise.resolve(true);
 
-    equals: ICondition<T> = (value: IState<T>): IRuleAsync<T> =>
-        (state: IState<T>) => Promise.resolve(deepEqual(value, state));
+    equals = (value: Tstate) => (state: Tstate) => Promise.resolve(deepEqual(value, state));
 
-    all: ICondition<T> = (rules: IRuleAsync<T>[]): IRuleAsync<T> =>
-        (state: IState<T>) =>
-            this._unwrapGroup(rules, state)
-                .then(ruleResults => ruleResults
-                    .reduce((last, current) => last && current, true)
-                );
+    all = (rules: ruleAsync<Tstate>[]) => (state: Tstate) =>
+        this._unwrapGroup(rules, state)
+            .then(ruleResults => ruleResults
+                .reduce((last, current) => last && current, true)
+            );
 
-    and: ICondition<T> = this.all;
-    some: ICondition<T> = (rules: IRuleAsync<T>[]): IRuleAsync<T> =>
-        (state: IState<T>) =>
-            this._unwrapGroup(rules, state)
-                .then(ruleResults => ruleResults
-                    .filter(e => e).length > 0
-                );
+    and = this.all;
 
-    any: ICondition<T> = this.some;
-    or: ICondition<T> = this.some;
-    not: ICondition<T> = (rule: IRuleAsync<T>): IRuleAsync<T> =>
-        (state: IState<T>) =>
-            rule(state)
-                .then(result => !result);
+    some = (rules: ruleAsync<Tstate>[]) => (state: Tstate) =>
+        this._unwrapGroup(rules, state)
+            .then(ruleResults => ruleResults
+                .filter(e => e).length > 0
+            );
 
-    is: ICondition<T> = (rule: IRule<T>): IRuleAsync<T> =>
-        (state: IState<T>) =>
-            Promise.resolve(!!(rule(state)));
+    any = this.some;
 
-    sync: ICondition<T> = this.is;
+    or = this.some;
 
-    async: ICondition<T> = (ruleLike: (state: IState<T>) => Promise<any>): IRuleAsync<T> =>
-        (state: IState<T>) => ruleLike(state)
+    not = (rule: ruleAsync<Tstate>) => (state: Tstate) =>
+        rule(state)
+            .then(result => !result);
+
+    is = (rule: ruleSync<Tstate>) => (state: Tstate): Promise<boolean> => Promise.resolve(!!(rule(state)));
+
+    sync = this.is;
+
+    async = (ruleLike: ruleLikeAsync<Tstate> | ruleAsync<Tstate>) =>
+        (state: Tstate) => ruleLike(state)
             .then(result => !!result)
             .catch(e => false)
 
-    waitFor: ICondition<T> = this.async;
+    waitFor = this.async;
 
-    timeout: ICondition<T> = ({ ms, $if, $when }: { ms: number, $if?: IRuleAsync<T>, $when?: IRuleAsync<T> }): IRuleAsync<T> =>
-        (state: IState<T>) =>
-            new Promise<boolean>((resolve, reject) => {
+    timeout = ({ ms, $if, $when }: { ms: number, $if?: ruleLikeAsync<Tstate>, $when?: ruleLikeAsync<Tstate> }) => (state: Tstate) =>
+        new Promise<boolean>((resolve, reject) => {
 
-                const rule = $if || $when || this.never;
+            const rule = $if || $when || this.never();
 
-                let isResolve = false;
+            let isResolve = false;
+            
+            const timerId = this._setTimeout(() => {
+                // console.log('resolving from TIMEOUT');
+                if (!isResolve) {
+                    isResolve = true;
+                    resolve(false);
+                }
+            }, ms);
 
-
-
-                const timerId = this._setTimeout(() => {
-                    // console.log('resolving from TIMEOUT');
+            this.async(rule)(state)
+                .then(result => {
                     if (!isResolve) {
+                        //  console.log('resolving from PROMISE');
+                        clearTimeout(timerId);
                         isResolve = true;
-                        resolve(false);
+                        resolve(result);
                     }
-                }, ms);
+                });
+
+        });
 
 
-                this.async(rule)(state)
-                    .then(result => {
-                        if (!isResolve) {
-                            //  console.log('resolving from PROMISE');
-                            clearTimeout(timerId);
-                            isResolve = true;
-                            resolve(result);
-                        }
-                    });
+    waitForOrSkip = this.timeout;
 
-            });
+    has = (query: { [key: string]: Object }) => (state: Tstate) => {
+        let result = true;
+        Object.keys(query).forEach(key => {
+            result = result && (Object.keys(state).indexOf(key) > -1) && this._equal(state[key], query[key]);
+        });
+        return Promise.resolve(result);
+    };
 
-
-    waitForOrSkip: ICondition<T> = this.timeout;
-
-    has: ICondition<T> = (query: { [key: string]: Object }): IRuleAsync<T> =>
-        (state: IState<T>) => {
-            let result = true;
-            Object.keys(query).forEach(key => {
-                result = result && (Object.keys(state).indexOf(key) > -1) && this._equal(state[key], query[key]);
-            });
-            return Promise.resolve(result);
-        };
-
-    propsAre: ICondition<T> = this.has;
+    propsAre = this.has;
 
     constructor(owerwrites: any = {}) {
         this._setTimeout = owerwrites._setTimeout || setTimeout;
@@ -131,7 +113,7 @@ export class Condition<T> {
     }
 }
 
-export default class RuleEngine<T> {
-    $if = new Condition<T>();
+export class RuleEngine<T> {
+    $if = new Conditions<T>();
     $when = this.$if;
 }
