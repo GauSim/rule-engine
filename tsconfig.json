@@ -8,11 +8,13 @@
         "preserveConstEnums": true,
         "sourceMap": true,
         "emitDecoratorMetadata": false,
-        "outDir": "./dist"
+        "outDir": "./dist",
+        "declaration": true
     },
     "files": [
         "./typings/main.d.ts",
         "./src/test/index.ts",
-        "./src/index.ts"
+        "./src/index.ts",
+        "./src/playground.ts"
     ]
 }
