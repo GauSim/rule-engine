@@ -41,6 +41,9 @@ const runRuleEngine = $if.all([
         $if.equals({ name: 'simon', age: 30 })
     ),
 
+    $if.equals({ name: 'simon', age: 30 }),
+
+
     // logic combine conditions with [some] or [all]
     // alias are for [and] & [or]
     $when.some([
@@ -68,10 +71,33 @@ const runRuleEngine = $if.all([
 const currentUser: IUser = { name: 'julia', age: 28 };
 
 // run the RuleEngine
-runRuleEngine(currentUser)
-    .then(result => {
 
-        console.log(result); // => true
+
+
+runRuleEngine.modify(e => (e.age = 99, e))(currentUser)
+    .then(result => {
+        console.log('form', currentUser);
+        console.log('to', result.$state); // => currentUser
+        console.log(result.$result); // => false
 
     })
     .catch(e => console.error(e));
+
+$if.not(runRuleEngine).modify(e => (e.age = 99, e))(currentUser)
+    .then(result => {
+        console.log('from', currentUser);
+        console.log('to', result.$state); // => currentUser
+        console.log(result.$result); // => false
+
+    })
+    .catch(e => console.error(e));
+
+
+/*
+console.time('a');
+const test = $if.never();
+test(currentUser).then($if.always()).then(r => {
+    console.log(r);
+    console.timeEnd('a');
+});
+*/

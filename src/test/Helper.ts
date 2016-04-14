@@ -33,9 +33,12 @@ export class Helper<T> {
             });
             describe('Result', () => {
 
-                it('should be a boolean', (done) => {
+                it('should be a RuleResult<TState>', (done) => {
                     this.condition(this.config)(state)
-                        .then(result => should(result).be.of.type('boolean'))
+                        .then(result => {
+                            should(result.$state).eql(state);
+                            should(result.$result).be.of.type('boolean');
+                        })
                         .then(_ => done())
                         .catch(done);
                 });

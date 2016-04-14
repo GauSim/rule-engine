@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as should from 'should';
 import * as _ from 'underscore';
 import { Helper } from '../Helper';
-
+import { RuleResultOf } from '../../lib/Interfaces';
 import { RuleEngine, ConditionService } from '../../lib/RuleEngine';
 
 interface ITestState {
@@ -25,6 +25,56 @@ describe('Module', () => {
 describe('Rules', () => {
     const $if = new ConditionService<ITestState>();
 
+    describe('toResult', () => {
+        it('should state and true into result', () => {
+            const state = { count: 1 };
+
+            const result = $if.toResult(state, true);
+            should(result.$state).eql(state);
+            should(result.$result).true();
+        });
+
+        it('should state and false into result', () => {
+            const state = { count: 1 };
+
+            const result = $if.toResult(state, false);
+            should(result.$state).eql(state);
+            should(result.$result).false();
+        });
+
+        it('should result and false into result', () => {
+            const RuleResult: RuleResultOf<ITestState> = <any>{ $state: { count: 1 }, $result: false };
+
+            const result = $if.toResult(RuleResult, true);
+            should(result.$state).eql(RuleResult.$state);
+            should(result.$result).true();
+        });
+
+        it('should result and false into result', () => {
+            const RuleResult: RuleResultOf<ITestState> = <any>{ $state: { count: 1 }, $result: false };
+
+            const result = $if.toResult(RuleResult, false);
+            should(result.$state).eql(RuleResult.$state);
+            should(result.$result).false();
+        });
+    });
+
+    describe('toState', () => {
+        it('should state and true into result', () => {
+            const input_state = { count: 1 };
+
+            const state = $if.toState(input_state);
+            should(state).eql(input_state);
+        });
+
+        it('should result and false into result', () => {
+            const RuleResult: RuleResultOf<ITestState> = <any>{ $state: { count: 1 }, $result: false };
+
+            const state = $if.toState(RuleResult);
+            should(state).eql(RuleResult.$state);
+        });
+    });
+
     describe('always', () => {
 
         const { always } = $if;
@@ -37,7 +87,7 @@ describe('Rules', () => {
             const config = { count: 0 };
             const state = { count: 999 };
             always()(state)
-                .then(result => should(result).be.exactly(true))
+                .then(result => should(result.$result).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
         });
@@ -57,7 +107,7 @@ describe('Rules', () => {
             const state = { count: 999 };
 
             never()(state)
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
         });
@@ -77,7 +127,7 @@ describe('Rules', () => {
             const state = { count: 999 };
 
             equals(config)(state)
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
         });
@@ -87,7 +137,7 @@ describe('Rules', () => {
             const state = { count: 999 };
 
             equals(config)(state)
-                .then(result => should(result).be.exactly(true))
+                .then(result => should(result.$result).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
         });
@@ -112,7 +162,7 @@ describe('Rules', () => {
             ]);
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
         });
@@ -128,7 +178,7 @@ describe('Rules', () => {
             ]);
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
         });
@@ -143,7 +193,7 @@ describe('Rules', () => {
             ]);
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(true))
+                .then(result => should(result.$result).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
         });
@@ -168,7 +218,7 @@ describe('Rules', () => {
             ]);
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(true))
+                .then(result => should(result.$result).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
         });
@@ -184,7 +234,7 @@ describe('Rules', () => {
             ]);
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(true))
+                .then(result => should(result.$result).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
         });
@@ -199,7 +249,7 @@ describe('Rules', () => {
             ]);
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
         });
@@ -220,7 +270,7 @@ describe('Rules', () => {
             )
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(true))
+                .then(result => should(result.$result).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
         });
@@ -232,7 +282,7 @@ describe('Rules', () => {
             )
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
         });
@@ -243,7 +293,7 @@ describe('Rules', () => {
 
         const { is } = $if;
 
-        new Helper(is, $if.always())
+        new Helper(is, () => true)
             .testConditionBase(null)
             .testRuleBase(null);
 
@@ -254,7 +304,7 @@ describe('Rules', () => {
             )
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(true))
+                .then(result => should(result.$result).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
         });
@@ -266,7 +316,7 @@ describe('Rules', () => {
             )
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
         });
@@ -286,7 +336,7 @@ describe('Rules', () => {
             const $run = has({ count: 1 });
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(true))
+                .then(result => should(result.$result).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
         });
@@ -296,7 +346,7 @@ describe('Rules', () => {
             const $run = has({ count: 999 });
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
         });
@@ -305,7 +355,7 @@ describe('Rules', () => {
             const $run = has({ randomProp: 999 });
 
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
 
@@ -323,7 +373,7 @@ describe('Rules', () => {
         it('should return TRUE if promise result is truthy', (done) => {
             const $run = async(Helper.truthyPromiseFunc);
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(true))
+                .then(result => should(result.$result).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
         });
@@ -331,7 +381,7 @@ describe('Rules', () => {
         it('should return FALSE if promise result is falsy', (done) => {
             const $run = async(Helper.falsyPromiseFunc);
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
         });
@@ -339,7 +389,7 @@ describe('Rules', () => {
         it('should return FALSE if promise is rejected', (done) => {
             const $run = async(Helper.errorPromiseFunc);
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
         });
@@ -366,7 +416,7 @@ describe('Rules', () => {
 
             const $run = _$if.timeout({ ms: 0, $if: Helper.truthyPromiseFunc });
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => should(was_called).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
@@ -376,7 +426,7 @@ describe('Rules', () => {
 
             const $run = timeout({ ms: 0, $if: Helper.truthyPromiseFunc });
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(true))
+                .then(result => should(result.$result).be.exactly(true))
                 .then(_ => done())
                 .catch(done);
 
@@ -386,7 +436,7 @@ describe('Rules', () => {
 
             const $run = timeout({ ms: 0, $if: Helper.falsyPromiseFunc });
             $run({ count: 1 })
-                .then(result => should(result).be.exactly(false))
+                .then(result => should(result.$result).be.exactly(false))
                 .then(_ => done())
                 .catch(done);
 
