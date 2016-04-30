@@ -9,13 +9,10 @@
         "sourceMap": true,
         "emitDecoratorMetadata": false,
         "outDir": "./dist",
-        "declaration": true
+        "declaration": false
     },
     "files": [
-        "./typings/main.d.ts",
-        "./src/test/index.ts",
-        "./src/index.ts",
-        "./src/playground.ts",
-        "./src/examples/Game/index.ts"
+        "../../../typings/main.d.ts",
+        "./index.ts"
     ]
 }
