@@ -1,4 +1,4 @@
-import RuleEngine, { ConditionService, Condition, RuleSync, RuleAsync, IConditionConfig, RuleResult } from './index';
+import RuleEngine, { ConditionService, Condition, RuleSync, RuleAsync, IConditionConfig, RuleResult, RuleResultOf } from './index';
 
 // define a interface you want to apply rules to
 interface IUser {
@@ -73,7 +73,7 @@ const currentUser: IUser = { name: 'julia', age: 28 };
 // run the RuleEngine
 
 
-
+/*
 runRuleEngine.modify(e => (e.age = 99, e))(currentUser)
     .then(result => {
         console.log('form', currentUser);
@@ -91,13 +91,7 @@ $if.not(runRuleEngine).modify(e => (e.age = 99, e))(currentUser)
 
     })
     .catch(e => console.error(e));
-
-
-/*
-console.time('a');
-const test = $if.never();
-test(currentUser).then($if.always()).then(r => {
-    console.log(r);
-    console.timeEnd('a');
-});
 */
+
+
+

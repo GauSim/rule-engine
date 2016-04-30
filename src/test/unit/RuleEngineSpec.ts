@@ -148,7 +148,7 @@ describe('Rules', () => {
 
         const { all } = $if;
 
-        new Helper(all, [])
+        new Helper(all, [ $if.always() ])
             .testConditionBase(null)
             .testRuleBase(null);
 

@@ -10,7 +10,10 @@ export class ConditionService<TState> implements IConditionService<TState> {
     toRule = (func: RuleAsync<TState>): RuleAsyncWithName<TState> => {
         const rule: RuleAsyncWithName<TState> = <any>func;
         // wtf ? :D write a test
-        rule.modify = (transform: (e: TState) => TState) => (state: TState | RuleResultOf<TState>) => func(state).then(result => result.$result === true ? this.toResult(transform(this.toState(result)), result.$result) : result);
+        rule.modify = (transform: (e: TState) => TState) =>
+            this.toRule((state: TState | RuleResultOf<TState>) => func(state).then(result => result.$result === true ? this.toResult(transform(this.toState(result)), result.$result) : result));
+
+        rule.thenModify = rule.modify;
         return rule;
     };
 
@@ -54,12 +57,33 @@ export class ConditionService<TState> implements IConditionService<TState> {
         return Promise.resolve(this.toResult(state, result));
     });
 
-    all = (rules: RuleAsync<TState>[]) => this.toRule((state: TState | RuleResultOf<TState>) =>
-        this._unwrapGroup(rules, this.toState(state))
-            .then(ruleResults => {
-                const result = ruleResults.map(e => e.$result).reduce((last, current) => last && current, true);
-                return this.toResult(state, result);
-            }));
+    each = (rules: RuleAsync<TState>[]) => this.toRule((state: TState | RuleResultOf<TState>) => {
+        const callWithState = (index: number, state: TState | RuleResultOf<TState>): Promise<RuleResultOf<TState>> => {
+            return rules[index](state).then(r => {
+
+                const nextIndex = index + 1;
+                if (index < rules.length && rules[nextIndex]) {
+                    return callWithState(nextIndex, this.toResult(r.$state, r.$result));
+                } else {
+                    return r;
+                }
+
+            });
+        }
+        return rules.length ? callWithState(0, state) : Promise.resolve(this.toResult(state, false));
+    });
+
+    combine = this.each;
+
+    all = (rules: RuleAsync<TState>[]) => this.toRule(
+        (state: TState | RuleResultOf<TState>) => {
+            return this._unwrapGroup(rules, this.toState(state))
+                .then(ruleResults => {
+                    const result = ruleResults.map(e => e.$result).reduce((last, current) => last && current, true);
+                    return this.toResult(state, result);
+                });
+        }
+    );
 
     and = this.all;
 

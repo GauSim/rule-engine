@@ -13,8 +13,11 @@ export type RuleLikeSync<TState> = (state?: TState) => RuleResult<TState>;
 export type RuleAsync<TState> = (state: TState | RuleResultOf<TState>) => Promise<RuleResult<TState>>;
 export type RuleLikeAsync<TState> = (state: TState | RuleResultOf<TState>) => Promise<any>;
 
+export type Action<TState> = (transform: (e: TState) => TState) => RuleAsync<TState> | RuleAsyncWithName<TState>;
+
 export type RuleAsyncWithName<TState> = RuleAsync<TState> & {
-    modify: (transform: (e: TState) => TState) => RuleAsync<TState>;
+    modify: Action<TState>;
+    thenModify: Action<TState>;
 };
 
 export type Condition<TState> = (conf?: IConditionConfig) => RuleAsync<TState> | RuleAsyncWithName<TState>;

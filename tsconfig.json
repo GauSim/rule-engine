@@ -15,6 +15,7 @@
         "./typings/main.d.ts",
         "./src/test/index.ts",
         "./src/index.ts",
-        "./src/playground.ts"
+        "./src/playground.ts",
+        "./src/examples/game.ts"
     ]
 }
