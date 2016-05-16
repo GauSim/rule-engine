@@ -96,7 +96,3 @@ runRuleEngineINVERT(currentUser)
 
     })
     .catch(e => console.error(e));
-
-
-
-
