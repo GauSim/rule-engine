@@ -137,6 +137,9 @@ const runRuleEngine = $if.some([
 ]);
 
 ```
+##### mhm?: 
+![Process](https://raw.githubusercontent.com/GauSim/rule-engine/master/process.png "Process")
+
 
 ## Want to help?
 ```sh
