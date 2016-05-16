@@ -1,4 +1,8 @@
 instrumentation:
     root: ./dist
     extensions: ['.js', '.jsx']
-    excludes: ['index.js', 'playground.js']
+    excludes: [
+        'index.js', 
+        'playground.js',
+        'examples/**'
+        ]

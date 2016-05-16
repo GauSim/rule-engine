@@ -18,7 +18,9 @@
     "watch": " npm run build -- --pretty -w",
     "watch:serve": "nodemon -L --exec 'npm run start' ./dist",
     "typings": "typings install",
-    "playground": "webpack --config ./src/examples/Game/webpack.config.js"
+    "playground": "webpack --config ./src/examples/Game/webpack.config.js",
+    "playground:dev": "npm run playground -- --w",
+    "playground:serve": "nodemon -L --exec 'node ./dist/examples/Game/server.js' ./dist/examples/Game/server.js"
   },
   "repository": {
     "type": "git",

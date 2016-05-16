@@ -16,6 +16,7 @@
         "./src/test/index.ts",
         "./src/index.ts",
         "./src/playground.ts",
-        "./src/examples/Game/index.ts"
+        "./src/examples/Game/index.ts",
+        "./src/examples/Game/server.ts"
     ]
 }

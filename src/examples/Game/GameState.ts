@@ -2,10 +2,6 @@ import { IGamePlayer } from './Interface/index';
 
 import * as Immutable from 'immutable';
 
-console.log(Immutable);
-
-
-
 export class GameState {
     private startTime: number;
     private endTime: number;
@@ -14,7 +10,7 @@ export class GameState {
 
     constructor() {
         this.startTime = Date.now()
-        this.endTime = this.startTime + 500;
+        this.endTime = Infinity; // this.startTime + (3600 * 10);
     }
 
     private createPlayerId(idLength: number = 15) {
@@ -33,5 +29,6 @@ export class GameState {
     addPlayer(player: IGamePlayer) {
         this.players = this.players.set(this.createPlayerId(), player);
     }
+
 
 }

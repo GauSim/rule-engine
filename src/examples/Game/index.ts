@@ -1,8 +1,5 @@
 import { IGamePlayer } from './Interface/index';
 
-import { GameLoop } from './GameLoop';
-import { GameState } from './GameState';
-import { GamePlayer } from './GamePlayer';
 import RuleEngine, { ConditionService, Condition, RuleSync, RuleAsync, IConditionConfig, RuleResult, RuleResultOf } from '../../index';
 
 const { $if, $when } = new RuleEngine<IGamePlayer>();
@@ -42,11 +39,11 @@ function loop(state: IGamePlayer) {
             return result.$result ? loop(result.$state) : null;
         })
 }
-
+/*
 const currentPlayer: IGamePlayer = { name: 'testplayer', health: 33 };
 loop(currentPlayer)
     .catch(error => console.error(error));
-
+*/
 
 
 
