@@ -70,12 +70,10 @@ const runRuleEngine = $if.all([
 
 const currentUser: IUser = { name: 'julia', age: 28 };
 
-// run the RuleEngine
-
-
-/*
-runRuleEngine.modify(e => (e.age = 99, e))(currentUser)
+// process1 => running the runRuleEngine with some state
+runRuleEngine(currentUser)
     .then(result => {
+
         console.log('form', currentUser);
         console.log('to', result.$state); // => currentUser
         console.log(result.$result); // => false
@@ -83,15 +81,22 @@ runRuleEngine.modify(e => (e.age = 99, e))(currentUser)
     })
     .catch(e => console.error(e));
 
-$if.not(runRuleEngine).modify(e => (e.age = 99, e))(currentUser)
+
+
+const makeAdult = (currentUser: IUser): IUser => (currentUser.age = 18, currentUser);
+
+const runRuleEngineINVERT = $if.not(runRuleEngine).thenModify(makeAdult); // thenModify will not have side effects 
+
+runRuleEngineINVERT(currentUser)
     .then(result => {
+
         console.log('from', currentUser);
         console.log('to', result.$state); // => currentUser
         console.log(result.$result); // => false
 
     })
     .catch(e => console.error(e));
-*/
+
 
 
 

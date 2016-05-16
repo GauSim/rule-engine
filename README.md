@@ -17,7 +17,11 @@ you can read it like this:
 > $if **state** has/is **condition** then runRuleEngine(state) returns true
 
 ```javascript
-runRuleEngine(state).then(result => { ... }) // => true
+runRuleEngine(state)
+    .then(e => { 
+        console.log(e.$state); // $state === state
+        console.log(e.$result); // => boolean    
+    });
 ```
 
 
@@ -55,7 +59,11 @@ const runRuleEngine = $if.sync(isAdult);
 const currentUser:IUser = { name: 'julia', age: 28 };
 
 // call with state while app running
-runRuleEngine(currentUser).then(result => { ... }) // => true
+runRuleEngine(currentUser)
+    .then(e => { 
+        console.log(e.$state); // => { name: 'julia', age: 28 }
+        console.log(e.$result); // => true  
+    });
 
 ...
 
@@ -76,7 +84,7 @@ function isOnline(user: IUser) {
 }
 
 const runRuleEngine = $if.async(isOnline), 
-runRuleEngine(currentUser).then(result => { ... }) // => true
+runRuleEngine(currentUser).then(result => { ... })
 
 // has a timeout to skip async stuff if it takes to long 
 const runRuleEngine = $if.timeout({ ms: 100, $if: isOnline }), 
