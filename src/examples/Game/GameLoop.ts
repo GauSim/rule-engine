@@ -23,9 +23,7 @@ export class GameLoop {
             if (p.position.y >= this.renderingEngine.height) p.position.y = 0;
             if (p.position.y < 0) p.position.y = this.renderingEngine.height - p.position.height;
 
-        })
-
-        // console.log('ok', state.getRemaningGameTime() > 0);
+        });
 
         this.renderingEngine.draw(state);
 
@@ -51,7 +49,7 @@ export class GameLoop {
                     && e.offsetY <= (player.position.height + player.position.y)
                     && e.offsetY >= (player.position.y)
                 ) {
-                    player.health -= 1;
+                    player.health -= 33;
                 }
             })
 
@@ -82,13 +80,13 @@ export class RenderingEngine {
 
         state.players.forEach(p => this.drawPlayer(p));
 
-
-
-
         this.drawTimer(state.getRemaningGameTime());
     }
 
     drawPlayer(player: IGamePlayer) {
+
+        if (player.health <= 0)
+            return;
 
         this.context.beginPath();
         this.context.rect(player.position.x, player.position.y, player.position.width, player.position.height);
