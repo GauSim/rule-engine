@@ -52,13 +52,11 @@ function isAdult({ age }: IUser) {
     return age >= 18; // => Boolean
 }
 
-// on app start register your rules 
 const runRuleEngine = $if.sync(isAdult);
 
-// users login...
 const currentUser:IUser = { name: 'julia', age: 28 };
 
-// call with state while app running
+
 runRuleEngine(currentUser)
     .then(e => { 
         console.log(e.$state); // => { name: 'julia', age: 28 }
