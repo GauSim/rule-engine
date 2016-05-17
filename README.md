@@ -72,18 +72,16 @@ runRuleEngine(currentUser)
 // action
 const makeAdult = (user: IUser): IUser => (user.age = 18, user);
 
-const runRuleEngineINVERT = $if.not(runRuleEngine).thenModify(makeAdult); 
+runRuleEngine = $if.not(runRuleEngine).thenModify(makeAdult); 
 // thenModify will not have side effects $state is immutable inside the runRuleEngine
 
-runRuleEngineINVERT(currentUser)
+runRuleEngine(currentUser)
     .then(e => {
         console.log('from', currentUser);   // => { name: 'julia', age: 16 }
         console.log(e.$result);             // => true
         console.log('to', e.$state);        // => { name: 'julia', age: 18 }
     })
 ```
-
-
 
 ##### works with Promises, for **async** rules:
 ```javascript
