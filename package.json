@@ -1,5 +1,5 @@
 {
-  "name": "rule-engine",
+  "name": "singapur",
   "version": "1.0.0",
   "description": "a sync & async rule engine in typescript",
   "main": "./dist/index.js",

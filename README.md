@@ -32,7 +32,7 @@ runRuleEngine(state)
 #### import rule-helpers $if and $when
 define an interface of the type you want to apply rules to and create rule-helpers **$if** and **$when** by passing your interface to the RuleEngine constructor. They both supply the same functions, so you can use both **$if** <==> **$when**.
 ```javascript
-import RuleEngine from './lib/RuleEngine';
+import RuleEngine from 'singapur';
 
 interface IUser {
     name: string;
