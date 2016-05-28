@@ -52,20 +52,37 @@ function isAdult({ age }: IUser) {
     return age >= 18; // => Boolean
 }
 
+
 const runRuleEngine = $if.sync(isAdult);
 
-const currentUser:IUser = { name: 'julia', age: 28 };
-
+const currentUser:IUser = { name: 'julia', age: 16 };
 
 runRuleEngine(currentUser)
     .then(e => { 
-        console.log(e.$state); // => { name: 'julia', age: 28 }
-        console.log(e.$result); // => true  
+        console.log(e.$result); // => false
+        console.log(e.$state); // => { name: 'julia', age: 16 }
     });
 
 ...
 
 ```
+
+#### add conditionally actions with thenModify
+```javascript
+// action
+const makeAdult = (user: IUser): IUser => (user.age = 18, user);
+
+runRuleEngine = $if.not(runRuleEngine).thenModify(makeAdult); 
+// thenModify will not have side effects $state is immutable inside the runRuleEngine
+
+runRuleEngine(currentUser)
+    .then(e => {
+        console.log('from', currentUser);   // => { name: 'julia', age: 16 }
+        console.log(e.$result);             // => true
+        console.log('to', e.$state);        // => { name: 'julia', age: 18 }
+    })
+```
+
 ##### works with Promises, for **async** rules:
 ```javascript
 // async 
