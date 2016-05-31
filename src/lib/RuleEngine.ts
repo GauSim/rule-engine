@@ -3,7 +3,6 @@ import * as deepEqual from 'deep-equal';
 import { Condition, RuleAsyncWithName, RuleAsync, RuleSync, RuleLikeSync, RuleLikeAsync, RuleResultOf, IConditionService } from './Interfaces';
 
 
-
 export class ConditionService<TState> implements IConditionService<TState> {
 
 
@@ -31,6 +30,7 @@ export class ConditionService<TState> implements IConditionService<TState> {
             })
         }
     };
+
     toState: (stateOrResult: TState | RuleResultOf<TState>) => TState = (state) => {
         let r = (state as RuleResultOf<TState>);
         if (!r) {
@@ -50,6 +50,7 @@ export class ConditionService<TState> implements IConditionService<TState> {
 
 
     never = () => this.toRule((state: TState | RuleResultOf<TState>) => Promise.resolve(this.toResult(state, false)));
+
     always = () => this.toRule((state: TState | RuleResultOf<TState>) => Promise.resolve(this.toResult(state, true)));
 
     equals = (value: TState | RuleResultOf<TState>) => this.toRule((state: TState | RuleResultOf<TState>) => {
@@ -58,65 +59,73 @@ export class ConditionService<TState> implements IConditionService<TState> {
     });
 
     each = (rules: RuleAsync<TState>[]) => this.toRule((state: TState | RuleResultOf<TState>) => {
+
         const callWithState = (index: number, state: TState | RuleResultOf<TState>): Promise<RuleResultOf<TState>> => {
-            return rules[index](state).then(r => {
+
+            return rules[index](state).then(value => {
 
                 const nextIndex = index + 1;
                 if (index < rules.length && rules[nextIndex]) {
-                    return callWithState(nextIndex, this.toResult(r.$state, r.$result));
+                    return callWithState(nextIndex, this.toResult(value.$state, value.$result));
                 } else {
-                    return r;
+                    return value;
                 }
 
             });
+
         }
+
         return rules.length ? callWithState(0, state) : Promise.resolve(this.toResult(state, false));
     });
 
     combine = this.each;
 
-    all = (rules: RuleAsync<TState>[]) => this.toRule(
-        (state: TState | RuleResultOf<TState>) => {
-            return this._unwrapGroup(rules, this.toState(state))
-                .then(ruleResults => {
-                    const result = ruleResults.map(e => e.$result).reduce((last, current) => last && current, true);
-                    return this.toResult(state, result);
-                });
-        }
-    );
+    all = (rules: RuleAsync<TState>[]) => this.toRule((state: TState | RuleResultOf<TState>) => {
+        return this._unwrapGroup(rules, this.toState(state))
+            .then(ruleResults => {
+                const result = ruleResults.map(e => e.$result).reduce((last, current) => last && current, true);
+                return this.toResult(state, result);
+            });
+    });
 
     and = this.all;
 
-    some = (rules: RuleAsync<TState>[]) => this.toRule((state: TState | RuleResultOf<TState>) =>
-        this._unwrapGroup(rules, this.toState(state))
-            .then(ruleResults => this.toResult(state, (ruleResults.filter(e => e.$result).length > 0))));
+    some = (rules: RuleAsync<TState>[]) => this.toRule((state: TState | RuleResultOf<TState>) => {
+        return this._unwrapGroup(rules, this.toState(state))
+            .then(ruleResults => this.toResult(state, (ruleResults.filter(e => e.$result).length > 0)));
+    });
 
     any = this.some;
 
     or = this.some;
 
-    not = (rule: RuleAsync<TState>) => this.toRule((state: TState | RuleResultOf<TState>) =>
-        rule(this.toState(state))
-            .then(result => this.toResult(state, !result.$result)));
+    not = (rule: RuleAsync<TState>) => this.toRule((state: TState | RuleResultOf<TState>) => {
+        return rule(this.toState(state))
+            .then(result => this.toResult(state, !result.$result));
+    });
 
     is = (rule: (TState) => boolean) => this.toRule((state: TState | RuleResultOf<TState>) => {
+
         const result = rule ? rule(this.toState(state)) : false;
         return Promise.resolve(this.toResult(state, result));
+
     });
 
     sync = this.is;
 
-    async = (ruleLike: RuleLikeAsync<TState> | RuleAsync<TState>) => this.toRule((state: TState | RuleResultOf<TState>) =>
-        ruleLike(this.toState(state))
+    async = (ruleLike: RuleLikeAsync<TState> | RuleAsync<TState>) => this.toRule((state: TState | RuleResultOf<TState>) => {
+        return ruleLike(this.toState(state))
             .then(result => this.toResult(state, !!result))
-            .catch(e => this.toResult(state, false)));
-
-
+            .catch(e => this.toResult(state, false))
+    });
 
     waitFor = this.async;
 
-    timeout = ({ ms, $if, $when }: { ms: number, $if?: RuleLikeAsync<TState>, $when?: RuleLikeAsync<TState> }) => this.toRule((state: TState | RuleResultOf<TState>) =>
-        new Promise<RuleResultOf<TState>>((resolve, reject) => {
+    timeout = (options: { ms: number, $if?: RuleLikeAsync<TState>, $when?: RuleLikeAsync<TState> }) => this.toRule((state: TState | RuleResultOf<TState>) => {
+
+        const { ms, $if, $when } = options;
+
+        return new Promise<RuleResultOf<TState>>((resolve, reject) => {
 
             const rule = $if || $when || this.never();
 
@@ -140,7 +149,8 @@ export class ConditionService<TState> implements IConditionService<TState> {
                     }
                 });
 
-        }));
+        });
+    });
 
 
     waitForOrSkip = this.timeout;
