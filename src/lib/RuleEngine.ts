@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 import * as deepEqual from 'deep-equal';
-import { Condition, RuleAsyncWithName, RuleAsync, RuleSync, RuleLikeSync, RuleLikeAsync, RuleResultOf, IConditionService } from './Interfaces';
+import {  RuleAsyncWithName, RuleAsync, RuleLikeAsync, RuleResultOf, IConditionService } from './Interfaces';
 
 
 export class ConditionService<TState> implements IConditionService<TState> {
@@ -44,8 +44,10 @@ export class ConditionService<TState> implements IConditionService<TState> {
         }
     }
 
-    private _equal: (valueA, valueB) => boolean = null;
+    private _equal: (valueA, valueB) => boolean = (a, b) => a === b;
+
     private _setTimeout: (callback: (...args: any[]) => void, ms: number, ...args: any[]) => number;
+
     private _unwrapGroup = (rules: RuleAsync<TState>[], state: TState | RuleResultOf<TState>): Promise<RuleResultOf<TState>[]> => Promise.all(rules.map(rule => rule(state)));
 
 
@@ -60,13 +62,14 @@ export class ConditionService<TState> implements IConditionService<TState> {
 
     each = (rules: RuleAsync<TState>[]) => this.toRule((state: TState | RuleResultOf<TState>) => {
 
-        const callWithState = (index: number, state: TState | RuleResultOf<TState>): Promise<RuleResultOf<TState>> => {
+        const _toResult = this.toResult;
+        function callWithState(index: number, state: TState | RuleResultOf<TState>): Promise<RuleResultOf<TState>> {
 
             return rules[index](state).then(value => {
 
                 const nextIndex = index + 1;
                 if (index < rules.length && rules[nextIndex]) {
-                    return callWithState(nextIndex, this.toResult(value.$state, value.$result));
+                    return callWithState(nextIndex, _toResult(value.$state, value.$result));
                 } else {
                     return value;
                 }
@@ -116,7 +119,7 @@ export class ConditionService<TState> implements IConditionService<TState> {
     async = (ruleLike: RuleLikeAsync<TState> | RuleAsync<TState>) => this.toRule((state: TState | RuleResultOf<TState>) => {
         return ruleLike(this.toState(state))
             .then(result => this.toResult(state, !!result))
-            .catch(e => this.toResult(state, false))
+            .catch(_ => this.toResult(state, false))
     });
 
     waitFor = this.async;
@@ -125,7 +128,7 @@ export class ConditionService<TState> implements IConditionService<TState> {
 
         const { ms, $if, $when } = options;
 
-        return new Promise<RuleResultOf<TState>>((resolve, reject) => {
+        return new Promise<RuleResultOf<TState>>((resolve) => {
 
             const rule = $if || $when || this.never();
 

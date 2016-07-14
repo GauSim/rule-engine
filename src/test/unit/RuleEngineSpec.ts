@@ -1,6 +1,4 @@
-import * as assert from 'assert';
 import * as should from 'should';
-import * as _ from 'underscore';
 import { Helper } from '../Helper';
 import { RuleResultOf } from '../../lib/Interfaces';
 import { RuleEngine, ConditionService } from '../../lib/RuleEngine';
@@ -79,12 +77,11 @@ describe('Rules', () => {
 
         const { always } = $if;
 
-        new Helper(always, null)
-            .testConditionBase(null)
-            .testRuleBase(null);
+        new Helper(always, {})
+            .testConditionBase()
+            .testRuleBase({});
 
         it('Rule should always return true', (done) => {
-            const config = { count: 0 };
             const state = { count: 999 };
             always()(state)
                 .then(result => should(result.$result).be.exactly(true))
@@ -98,12 +95,11 @@ describe('Rules', () => {
 
         const { never } = $if;
 
-        new Helper(never, null)
-            .testConditionBase(null)
-            .testRuleBase(null);
+        new Helper(never, {})
+            .testConditionBase()
+            .testRuleBase({});
 
         it('Rule should always return false', (done) => {
-            const config = { count: 0 };
             const state = { count: 999 };
 
             never()(state)
@@ -118,9 +114,9 @@ describe('Rules', () => {
 
         const { equals } = $if;
 
-        new Helper(equals, null)
-            .testConditionBase(null)
-            .testRuleBase(null);
+        new Helper(equals, {})
+            .testConditionBase()
+            .testRuleBase({});
 
         it('Rule should always return FALSE if state and config ARE NOT Equal', (done) => {
             const config = { count: 0 };
@@ -148,9 +144,9 @@ describe('Rules', () => {
 
         const { all } = $if;
 
-        new Helper(all, [ $if.always() ])
-            .testConditionBase(null)
-            .testRuleBase(null);
+        new Helper(all, [$if.always()])
+            .testConditionBase()
+            .testRuleBase({});
 
         it('should return FALSE if ONE of the rules evals to FALSE', (done) => {
 
@@ -205,8 +201,8 @@ describe('Rules', () => {
         const { some } = $if;
 
         new Helper(some, [])
-            .testConditionBase(null)
-            .testRuleBase(null);
+            .testConditionBase()
+            .testRuleBase({});
 
         it('should return TRUE if ONE of the rules evals to TRUE', (done) => {
 
@@ -260,8 +256,8 @@ describe('Rules', () => {
         const { not } = $if;
 
         new Helper(not, $if.never())
-            .testConditionBase(null)
-            .testRuleBase(null);
+            .testConditionBase()
+            .testRuleBase({});
 
         it('should return TRUE if input rule evals to FALSE', (done) => {
 
@@ -294,8 +290,8 @@ describe('Rules', () => {
         const { is } = $if;
 
         new Helper(is, () => true)
-            .testConditionBase(null)
-            .testRuleBase(null);
+            .testConditionBase()
+            .testRuleBase({});
 
         it('should return TRUE if input rule evals to TRUE', (done) => {
 
@@ -328,8 +324,8 @@ describe('Rules', () => {
         const { has } = $if;
 
         new Helper(has, {})
-            .testConditionBase(null)
-            .testRuleBase(null);
+            .testConditionBase()
+            .testRuleBase({});
 
         it('should return TRUE if state HAS prop with the passd value', (done) => {
 
@@ -367,8 +363,8 @@ describe('Rules', () => {
         const { async } = $if;
 
         new Helper(async, $if.always())
-            .testConditionBase(null)
-            .testRuleBase(null);
+            .testConditionBase()
+            .testRuleBase({});
 
         it('should return TRUE if promise result is truthy', (done) => {
             const $run = async(Helper.truthyPromiseFunc);
@@ -401,12 +397,12 @@ describe('Rules', () => {
         const { timeout } = $if;
 
         new Helper($if.timeout, { ms: 100, $if: $if.always() })
-            .testConditionBase(null)
-            .testRuleBase(null);
+            .testConditionBase()
+            .testRuleBase({});
 
         it('should call timeout', (done) => {
             let was_called = false;
-            const _setTimeout = (func: () => any, t: number) => {
+            const _setTimeout = (func: () => any) => {
                 was_called = true;
                 func();
             };

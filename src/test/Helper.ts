@@ -4,11 +4,11 @@ import { Condition, IConditionConfig } from '../lib/Interfaces';
 
 export class Helper<T> {
 
-    static truthyPromiseFunc = (state) => Promise.resolve({ some: 'value' });
-    static falsyPromiseFunc = (state) => Promise.resolve(null);
-    static errorPromiseFunc = (state) => Promise.reject(new Error('bla'));
+    static truthyPromiseFunc = () => Promise.resolve({ some: 'value' });
+    static falsyPromiseFunc = () => Promise.resolve(null);
+    static errorPromiseFunc = () => Promise.reject(new Error('bla'));
 
-    testConditionBase = (state: T) => {
+    testConditionBase = () => {
         describe('Condition', () => {
 
             it('should be a function', () => should(this.condition).be.of.type('function'));

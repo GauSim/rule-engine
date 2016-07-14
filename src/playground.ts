@@ -1,4 +1,4 @@
-import RuleEngine, { ConditionService, Condition, RuleSync, RuleAsync, IConditionConfig, RuleResult, RuleResultOf } from './index';
+import RuleEngine from './index';
 
 // define a interface you want to apply rules to
 interface IUser {
@@ -13,7 +13,9 @@ function isAdult({ age }: IUser) {
 }
 
 function isOnline(user: IUser) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+
+        console.log(user);
 
         // call async remote api to eval
         setTimeout(() => {
